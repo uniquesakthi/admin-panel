@@ -1,25 +1,89 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
 
-function App() {
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Notifications from './pages/Notifications';
+import UpdateData from './pages/UpdateData';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import Layout from './components/Layout';
+
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="flex">
+        {/* Only show the sidebar for authenticated routes */}
+        {isAuthenticated && <Sidebar onLogout={handleLogout} />}
+        
+        <div className="flex-grow">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />} />
+            <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
+
+            {/* Protected Routes */}
+            <Route 
+              path="/" 
+              element={isAuthenticated ? 
+                <Layout onLogout={handleLogout}>
+                  <Dashboard />
+                </Layout>
+              : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/notifications" 
+              element={isAuthenticated ? 
+                <Layout onLogout={handleLogout}>
+                  <Notifications />
+                </Layout>
+              : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/update-data" 
+              element={isAuthenticated ? 
+                <Layout onLogout={handleLogout}>
+                  <UpdateData />
+                </Layout>
+              : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/profile" 
+              element={isAuthenticated ? 
+                <Layout onLogout={handleLogout}>
+                  <Profile />
+                </Layout>
+              : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/settings" 
+              element={isAuthenticated ? 
+                <Layout onLogout={handleLogout}>
+                  <Settings />
+                </Layout>
+              : <Navigate to="/login" />} 
+            />
+
+            {/* Redirect any undefined routes to login */}
+            <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
